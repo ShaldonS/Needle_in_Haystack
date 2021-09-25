@@ -55,6 +55,38 @@ std::vector<int> triv_search(std::string haystack, std::string needle)
 	return ans;
 }
 
+void choose_algorithm(std::string haystack, std::string needle)
+{
+	int choice_alp = 0;
+	std::cout << "\n1.Наивный алгоритм\n2.Алгоритм Кнута-Морриса-Пратта: ";
+	std::cin >> choice_alp;
+	if (choice_alp == 1)
+	{
+		std::vector<int> vec = triv_search(haystack, needle);
+		std::cout << "Ответ: ";
+		for (int i : vec)
+		{
+			std::cout << i << " ";
+		}
+	}
+	else if (choice_alp == 2)
+	{
+		std::vector<int> vec2 = prefix_function(needle + ' ' + haystack);
+
+		int n = needle.length();
+
+		std::cout << "Ответ: ";
+		for (int i = 0; i < haystack.length(); i++)
+		{
+			if (vec2[n + 1 + i] == n)
+			{
+				std::cout << haystack << "[" << i - n + 1 << "..." << i << "] = " << needle << "\n";
+			}
+		}
+	}
+	else std::cout << "Такого варианта нет";
+}
+
 void choose_alphabet(std::string str)
 {
 	srand(time(NULL));
@@ -83,7 +115,7 @@ void choose_alphabet(std::string str)
 
 	int rnd = rand() % haystack.length();
 	while(haystack.length() - rnd < word_length) rnd = rand() % haystack.length();
-	rnd--;
+	if (rnd!= 0) rnd--;
 	for (int i = 0; i < word_length; ++i)
 	{	
 		needle.push_back(haystack[rnd++]);
@@ -93,6 +125,18 @@ void choose_alphabet(std::string str)
 	std::cout << "\n";
 	for (char ch : needle) std::cout << ch;
 
+	choose_algorithm(haystack, needle);
+}
+
+std::string mul_num_string(std::string str, int n)
+{
+	std::string str_tmp = str;
+	for (int i(0); i < n-1; ++i)
+	{
+		str += str_tmp;
+	}
+	
+	return str;
 }
 
 int main() 
@@ -112,11 +156,11 @@ int main()
 		rus_alphabet.push_back(i);
 	}
 
-	int choice = 0, choice_alp = 0;
+	int choice = 0, choice_alp = 0, n = 0;
 	bool check = true;
 	while (check = true)
 	{
-		std::cout << "Выберите:\n1.Ввести слова вручную\n2.Выбрать буквы алфавита и составить из них слова\n3.Слово вида (B1 B2 … Bs)\n4.Выйти\n";
+		std::cout << "Выберите:\n1.Ввести слова вручную\n2.Выбрать буквы алфавита и составить из них слова\n3.Слово вида (B1 B2 … Bs)^n\n4.Выйти\n";
 		std::cin >> choice;
 		switch (choice)
 		{
@@ -125,33 +169,7 @@ int main()
 			std::cin >> haystack;
 			std::cout << "Слово, которое нужно найти:";
 			std::cin >> needle;
-			std::cout << "1.Наивный алгоритм\n2.Алгоритм Кнута-Морриса-Пратта: ";
-			std::cin >> choice_alp;
-			if (choice_alp == 1)
-			{
-				std::vector<int> vec = triv_search(haystack, needle);
-				std::cout << "Ответ: ";
-				for (int i : vec)
-				{
-					std::cout << i << " ";
-				}
-			}
-			else if (choice_alp == 2)
-			{
-				std::vector<int> vec2 = prefix_function(needle + ' ' + haystack);
-
-				int n = needle.length();
-
-				std::cout << "Ответ: ";
-				for (int i = 0; i < haystack.length(); i++) 
-				{
-					if (vec2[n + 1 + i] == n)
-					{
-						std::cout << haystack << "[" << i - n + 1 << "..." << i << "] = " << needle << "\n";
-					}
-				}
-			}
-			else std::cout << "Такого варианта нет";
+			choose_algorithm(haystack, needle);
 			std::cout << "\n";
 			break;
 		case 2:
@@ -165,7 +183,21 @@ int main()
 			std::cout << "\n";
 			break;
 		case 3:
-			std::cout << "В разработке";
+			std::cout << "Слово, в котором нужно искать:";
+			std::cin >> haystack;
+			std::cout << "Степень n:";
+			std::cin >> n;
+			haystack = mul_num_string(haystack, n);
+			std::cout << "Слово, которое нужно найти:";
+			std::cin >> needle;
+			std::cout << "Степень n:";
+			std::cin >> n;
+			needle = mul_num_string(needle, n);
+
+			std::cout << haystack << " " << needle << "\n";
+
+			choose_algorithm(haystack, needle);
+			std::cout << "\n";
 			break;
 		case 4:
 			check = false;
@@ -175,23 +207,4 @@ int main()
 			break;
 		}
 	}
-
-
-
-	/*std::vector<int> vec = triv_search(haystack, needle);
-	for (int i : vec)
-	{
-		std::cout << i << " ";
-	}
-
-	std::vector<int> f = prefix_function(needle + ' ' + haystack);
-
-	int n = needle.length();
-
-	for (int i = 0; i < haystack.length(); i++) {
-		if (f[n + 1 + i] == n) 
-		{
-			std::cout << "haystack[" << i - n + 1 << ".." << i << "] = " << needle << "\n";
-		}
-	}*/
 }
