@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <windows.h>
+#include <ctime>
+#include <chrono>
 
 std::vector<int> prefix_function(const std::string s) {
 	std::vector<int> pi(s.length(), 0);
@@ -24,6 +26,8 @@ std::vector<int> prefix_function(const std::string s) {
 
 std::vector<int> triv_search(std::string haystack, std::string needle)
 {
+	auto t1 = std::chrono::high_resolution_clock::now();
+
 	int n = haystack.length();
 	int m = needle.length();
 	std::vector<int> ans;
@@ -44,11 +48,50 @@ std::vector<int> triv_search(std::string haystack, std::string needle)
 		if (flag && haystack[i] == needle[0]) ans.push_back(i);
 		flag = false;
 	}
+	auto t2 = std::chrono::high_resolution_clock::now();
+	long dt = ((std::chrono::nanoseconds)(t2 - t1)).count();
+	std::cout << "ÐÐ»Ð³Ð¾Ñ€Ð¸Ñ‚Ð¼ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÑÐ»ÑÑ " << dt << " Ð½Ð°Ð½Ð¾ÑÐµÐºÑƒÐ½Ð´\n";
+
 	return ans;
 }
 
 void choose_alphabet(std::string str)
 {
+	srand(time(NULL));
+	std::string haystack, needle;
+	int word_length = 0, alp_range_begin = 0, alp_range_end = 0;
+	std::cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð´Ð»Ð¸Ð½Ñƒ ÑÐ»Ð¾Ð²Ð°, Ð² ÐºÐ¾Ñ‚Ð¾Ñ€Ð¾Ð¼ Ð½ÑƒÐ¶Ð½Ð¾ Ð¸ÑÐºÐ°Ñ‚ÑŒ: ";
+	std::cin >> word_length;
+	std::cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð´Ð¸Ð°Ð¿Ð°Ð·Ð¾Ð½ Ð±ÑƒÐºÐ² Ð² Ð°Ð»Ñ„Ð°Ð²Ð¸Ñ‚Ðµ: \n";
+	for (char ch : str) std::cout << ch << "  ";
+	std::cout << "\n";
+	for (int i(0); i < str.length(); ++i)
+	{
+		std::cout << i << " ";
+		if (i < 10) std::cout << " ";
+	}
+	std::cout << "\nÐÐ°Ñ‡Ð°Ð»Ð¾ Ð´Ð¸Ð°Ð¿Ð°Ð·Ð¾Ð½Ð°: ";
+	std::cin >> alp_range_begin;
+	std::cout << "ÐšÐ¾Ð½ÐµÑ† Ð´Ð¸Ð°Ð¿Ð°Ð·Ð¾Ð½Ð°: ";
+	std::cin >> alp_range_end;
+
+	for (int i = 0; i < word_length; ++i)
+		haystack.push_back(char(str[alp_range_begin] + rand() % (str[alp_range_begin] - str[alp_range_end])));
+
+	std::cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð´Ð»Ð¸Ð½Ñƒ ÑÐ»Ð¾Ð²Ð°, ÐºÐ¾Ñ‚Ð¾Ñ€Ð¾Ðµ Ð½ÑƒÐ¶Ð½Ð¾ Ð½Ð°Ð¹Ñ‚Ð¸: ";
+	std::cin >> word_length;
+
+	int rnd = rand() % haystack.length();
+	while(haystack.length() - rnd < word_length) rnd = rand() % haystack.length();
+	rnd--;
+	for (int i = 0; i < word_length; ++i)
+	{	
+		needle.push_back(haystack[rnd++]);
+	}
+
+	for (char ch : haystack) std::cout << ch;
+	std::cout << "\n";
+	for (char ch : needle) std::cout << ch;
 
 }
 
@@ -60,36 +103,34 @@ int main()
 	std::string eng_alphabet;
 	std::string rus_alphabet;
 
-	for (char i = 'A'; i <= 'Z'; i++)
+	for (char i = 'a'; i <= 'z'; i++)
 	{
 		eng_alphabet.push_back(i);
-		eng_alphabet.push_back(char(i+32));
 	}
-	for (char i = 'À'; i <= 'ß'; i++)
+	for (char i = 'Ð°'; i <= 'Ñ'; i++)
 	{
 		rus_alphabet.push_back(i);
-		rus_alphabet.push_back(char(i + 32));
 	}
 
 	int choice = 0, choice_alp = 0;
 	bool check = true;
 	while (check = true)
 	{
-		std::cout << "Âûáåðèòå:\n1.Ââåñòè ñëîâà âðó÷íóþ\n2.Âûáðàòü áóêâû àëôàâèòà è ñîñòàâèòü èç íèõ ñëîâà\n3.Ñëîâî âèäà (B1 B2 … Bs)\n4.Âûéòè\n";
+		std::cout << "Ð’Ñ‹Ð±ÐµÑ€Ð¸Ñ‚Ðµ:\n1.Ð’Ð²ÐµÑÑ‚Ð¸ ÑÐ»Ð¾Ð²Ð° Ð²Ñ€ÑƒÑ‡Ð½ÑƒÑŽ\n2.Ð’Ñ‹Ð±Ñ€Ð°Ñ‚ÑŒ Ð±ÑƒÐºÐ²Ñ‹ Ð°Ð»Ñ„Ð°Ð²Ð¸Ñ‚Ð° Ð¸ ÑÐ¾ÑÑ‚Ð°Ð²Ð¸Ñ‚ÑŒ Ð¸Ð· Ð½Ð¸Ñ… ÑÐ»Ð¾Ð²Ð°\n3.Ð¡Ð»Ð¾Ð²Ð¾ Ð²Ð¸Ð´Ð° (B1 B2 â€¦ Bs)\n4.Ð’Ñ‹Ð¹Ñ‚Ð¸\n";
 		std::cin >> choice;
 		switch (choice)
 		{
 		case 1:
-			std::cout << "Ñëîâî, â êîòîðîì íóæíî èñêàòü:";
+			std::cout << "Ð¡Ð»Ð¾Ð²Ð¾, Ð² ÐºÐ¾Ñ‚Ð¾Ñ€Ð¾Ð¼ Ð½ÑƒÐ¶Ð½Ð¾ Ð¸ÑÐºÐ°Ñ‚ÑŒ:";
 			std::cin >> haystack;
-			std::cout << "Ñëîâî, êîòîðîå íóæíî íàéòè:";
+			std::cout << "Ð¡Ð»Ð¾Ð²Ð¾, ÐºÐ¾Ñ‚Ð¾Ñ€Ð¾Ðµ Ð½ÑƒÐ¶Ð½Ð¾ Ð½Ð°Ð¹Ñ‚Ð¸:";
 			std::cin >> needle;
-			std::cout << "1.Íàèâíûé àëãîðèòì\n2.Àëãîðèòì Êíóòà-Ìîððèñà-Ïðàòòà: ";
+			std::cout << "1.ÐÐ°Ð¸Ð²Ð½Ñ‹Ð¹ Ð°Ð»Ð³Ð¾Ñ€Ð¸Ñ‚Ð¼\n2.ÐÐ»Ð³Ð¾Ñ€Ð¸Ñ‚Ð¼ ÐšÐ½ÑƒÑ‚Ð°-ÐœÐ¾Ñ€Ñ€Ð¸ÑÐ°-ÐŸÑ€Ð°Ñ‚Ñ‚Ð°: ";
 			std::cin >> choice_alp;
 			if (choice_alp == 1)
 			{
 				std::vector<int> vec = triv_search(haystack, needle);
-				std::cout << "Îòâåò: ";
+				std::cout << "ÐžÑ‚Ð²ÐµÑ‚: ";
 				for (int i : vec)
 				{
 					std::cout << i << " ";
@@ -101,7 +142,7 @@ int main()
 
 				int n = needle.length();
 
-				std::cout << "Îòâåò: ";
+				std::cout << "ÐžÑ‚Ð²ÐµÑ‚: ";
 				for (int i = 0; i < haystack.length(); i++) 
 				{
 					if (vec2[n + 1 + i] == n)
@@ -110,26 +151,27 @@ int main()
 					}
 				}
 			}
-			else std::cout << "Òàêîãî âàðèàíòà íåò";
+			else std::cout << "Ð¢Ð°ÐºÐ¾Ð³Ð¾ Ð²Ð°Ñ€Ð¸Ð°Ð½Ñ‚Ð° Ð½ÐµÑ‚";
 			std::cout << "\n";
 			break;
 		case 2:
-			std::cout << "1.Ðóññêèé\n2.Àíãëèéñêèé: ";
+			std::cout << "1.Ð ÑƒÑÑÐºÐ¸Ð¹\n2.ÐÐ½Ð³Ð»Ð¸Ð¹ÑÐºÐ¸Ð¹: ";
 			std::cin >> choice_alp;
 			if (choice_alp == 1)
 				choose_alphabet(rus_alphabet);
 			else if (choice_alp == 2)
 				choose_alphabet(eng_alphabet);
-			else std::cout << "Òàêîãî âàðèàíòà íåò";
+			else std::cout << "Ð¢Ð°ÐºÐ¾Ð³Ð¾ Ð²Ð°Ñ€Ð¸Ð°Ð½Ñ‚Ð° Ð½ÐµÑ‚";
+			std::cout << "\n";
 			break;
 		case 3:
-			std::cout << "Â ðàçðàáîòêå";
+			std::cout << "Ð’ Ñ€Ð°Ð·Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐµ";
 			break;
 		case 4:
 			check = false;
 			break;
 		case 5:
-			std::cout << "Òàêîãî âàðèàíòà íåò";
+			std::cout << "Ð¢Ð°ÐºÐ¾Ð³Ð¾ Ð²Ð°Ñ€Ð¸Ð°Ð½Ñ‚Ð° Ð½ÐµÑ‚\n";
 			break;
 		}
 	}
@@ -153,55 +195,3 @@ int main()
 		}
 	}*/
 }
-
-
-
-
-/*
-std::vector<int> triv_search(std::string haystack, std::string needle)
-{
-	std::vector<int> vec;
-	int n = needle.length();
-	int m = haystack.length();
-	for (int i(0); i <= m; ++i)
-	{
-		vec.push_back(0);
-	}
-	int s;
-
-	for (int i(n); i < m; ++i)
-	{
-		s = 1;
-		while (needle[s] == haystack[i - (s)] && (s < n))
-		{
-			s++;
-			std::cout << i - (s) << "\n";
-		}
-		if ((s == n) && (needle[n] == haystack[i]))
-			vec[i] = n;
-		else
-			vec[i] = 0;
-	}
-	return vec;
-}
-
-
-void search(char* haystack, const char* needle)
-{
-	std::vector<int> word;
-	int m = strlen(haystack);
-	int n = strlen(needle);
-	char* str = new char[n + 1];
-	str[n] = '\0';
-	for (int i(0); i < m; ++i)
-	{
-		for (int j(0), k(0); j < n; ++j, ++k)
-		{
-			if (needle[j] == haystack[i])
-			{
-			}
-		}
-	}
-	for (int i : word)
-		std::cout << i << "\n";
-}*/
