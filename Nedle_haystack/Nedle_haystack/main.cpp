@@ -81,7 +81,6 @@ void experiment1()
 {
 	std::string haystack;
 	std::string needle;
-	int k_ = 1;
 
 	std::cout << "Слово ab, которое нужно найти (из двух букв):";
 	std::cin >> needle;
@@ -122,12 +121,56 @@ void experiment2()
 {
 	std::string haystack;
 	std::string needle;
+
+	char a, b;
+	std::cout << "Введите 1-ую букву алфавита: ";
+	std::cin >> a;
+	std::cout << "Введите 2-ую букву алфавита: ";
+	std::cin >> b;
+
+	for (int m(1); m < 1e+6+1; m+=1e+4)
+	{
+		for (int i(0); i < m; ++i)
+		{
+			needle += a;
+		}
+	}
+
+	for (int m(1); m < 1e+6 + 1; ++m)
+	{
+		if (m % 2)
+			haystack += a;
+		else haystack += b;
+	}
 }
 
 void experiment3()
 {
 	std::string haystack;
 	std::string needle;
+	int i = 0;
+	std::string word1, word2;
+
+	char a, b;
+	std::cout << "Введите букву а: ";
+	std::cin >> a;
+	std::cout << "Введите букву b: ";
+	std::cin >> b;
+	while (i < 5)
+	{
+		word1 += a;
+		i++;
+	}
+
+	word2 = word1 + b;
+
+	for (int h(1); h < 1e+6 + 1; h += 1e+4)
+	{
+		for (int i(0); i < h; ++i)
+		{
+			needle += a;
+		}
+	}
 }
 
 void choose_algorithm(std::string haystack, std::string needle)
@@ -238,7 +281,7 @@ std::string mul_num_string(std::string str, int n)
 	return str;
 }
 
-int main() 
+int main(int argc, char**argv) 
 {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
@@ -316,4 +359,6 @@ int main()
 			break;
 		}
 	}
+
+	return 0;
 }
