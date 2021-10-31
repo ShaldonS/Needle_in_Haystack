@@ -4,7 +4,10 @@
 #include <ctime>
 #include <chrono>
 
-std::vector<int> prefix_function(const std::string s) {
+//std::vector<int> prefix_function(const std::string s)
+auto prefix_function(const std::string s)
+{
+	auto t1 = std::chrono::high_resolution_clock::now();
 	std::vector<int> pi(s.length(), 0);
 
 	for (int i = 1; i < s.length(); i++) {
@@ -21,15 +24,22 @@ std::vector<int> prefix_function(const std::string s) {
 			pi[i] = j;
 		}
 	}
-	return pi;
+	auto t2 = std::chrono::high_resolution_clock::now();
+	long dt = ((std::chrono::nanoseconds)(t2 - t1)).count();
+
+	//std::cout << "Алгоритм выполнялся " << dt << " наносекунд\n";
+	//return pi;
+	return dt;
 }
 
-std::vector<int> triv_search(std::string haystack, std::string needle)
+//std::vector<int> triv_search(std::string haystack, std::string needle)
+auto triv_search(std::string haystack, std::string needle)
 {
 	auto t1 = std::chrono::high_resolution_clock::now();
 
 	int n = haystack.length();
 	int m = needle.length();
+
 	std::vector<int> ans;
 	int j;
 	bool flag = false;
@@ -45,33 +55,104 @@ std::vector<int> triv_search(std::string haystack, std::string needle)
 				break;
 			}
 		}
-		if (flag && haystack[i] == needle[0]) ans.push_back(i);
+		if (flag && haystack[i] == needle[0])
+		{
+			//std::cout << "\nYe\n";
+			ans.push_back(i);
+		}
+		
 		flag = false;
 	}
 	auto t2 = std::chrono::high_resolution_clock::now();
-	long dt = ((std::chrono::nanoseconds)(t2 - t1)).count();
-	std::cout << "Алгоритм выполнялся " << dt << " наносекунд\n";
+	auto dt = ((std::chrono::nanoseconds)(t2 - t1)).count();
+	//auto dt = std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
 
-	return ans;
+
+	//std::cout << "\n" << ans.size() << "\n";
+
+	//std::cout << "Алгоритм выполнялся " << dt << " наносекунд\n";
+
+	return dt;
+}
+
+void choose_algorithm(std::string haystack, std::string needle);
+
+void experiment1()
+{
+	std::string haystack;
+	std::string needle;
+	int k_ = 1;
+
+	std::cout << "Слово ab, которое нужно найти (из двух букв):";
+	std::cin >> needle;
+	std::string needle_tmp = needle;
+	std::cout << "Слово, в котором нужно искать, будет равно (ab)^(1000*k). k = 1, … ,1001 с шагом 10\n";
+	haystack = needle;
+	
+	for (int k(1); k < 1001; k += 10)
+	{
+		for (int i(1); i < k; ++i)
+		{
+			needle += needle_tmp;
+		}
+
+		for (int i(1); i < 1000*k; ++i)
+		{
+			haystack += needle_tmp;
+		}
+		
+		//triv_search(haystack, needle);
+		auto triv = triv_search(haystack, needle);
+		std::cout << "Наивный алгоритм выполнялся ";
+		if (triv < 1000000000)
+			std::cout << triv << " наносекунд\n";
+		else if (triv > 1000000000)
+			std::cout << triv/ 1000000000 << " секунд\n";
+	}
+
+	std::cout << needle.size() << " " << haystack.size() << "\n";
+
+
+	choose_algorithm(haystack, needle);
+
+
+}
+
+void experiment2()
+{
+	std::string haystack;
+	std::string needle;
+}
+
+void experiment3()
+{
+	std::string haystack;
+	std::string needle;
 }
 
 void choose_algorithm(std::string haystack, std::string needle)
 {
 	int choice_alp = 0;
-	std::cout << "\n1.Наивный алгоритм\n2.Алгоритм Кнута-Морриса-Пратта: ";
+	std::cout << "\n1.Наивный алгоритм\n2.Алгоритм Кнута-Морриса-Пратта\n3.Выполнить оба: ";
 	std::cin >> choice_alp;
 	if (choice_alp == 1)
 	{
-		std::vector<int> vec = triv_search(haystack, needle);
+		/*std::vector<int> vec = triv_search(haystack, needle);
 		std::cout << "Ответ: ";
 		for (int i : vec)
 		{
 			std::cout << i << " ";
-		}
+		}*/
+		long triv = triv_search(haystack, needle);
+		std::cout << "Наивный алгоритм выполнялся ";
+		if (triv / 1000000000 < 1)
+			std::cout << triv << " наносекунд\n";
+		else if (triv / 1000000000 >= 1)
+			std::cout << triv / 1000000000 << " секунд\n";
 	}
 	else if (choice_alp == 2)
 	{
-		std::vector<int> vec2 = prefix_function(needle + ' ' + haystack);
+		/*std::vector<int> vec2 = prefix_function(needle + ' ' + haystack);
 
 		int n = needle.length();
 
@@ -80,9 +161,31 @@ void choose_algorithm(std::string haystack, std::string needle)
 		{
 			if (vec2[n + 1 + i] == n)
 			{
-				std::cout << haystack << "[" << i - n + 1 << "..." << i << "] = " << needle << "\n";
+				std::cout << i - n + 1 << " ";
 			}
-		}
+		}*/
+		long prefix = prefix_function(needle + ' ' + haystack);
+		std::cout << "Алгоритм Кнута-Морриса-Пратта выполнялся ";
+		if (prefix / 1000000000 < 1)
+			std::cout << prefix << " наносекунд\n";
+		else if (prefix / 1000000000 >= 1)
+			std::cout << prefix / 1000000000 << " секунд\n";
+	}
+	else if (choice_alp == 3)
+	{
+		long triv = triv_search(haystack, needle);
+		std::cout << "Наивный алгоритм выполнялся ";
+		if (triv / 1000000000 < 1)
+			std::cout << triv << " наносекунд\n";
+		else if (triv / 1000000000 >= 1)
+			std::cout << triv / 1000000000 << " секунд\n";
+
+		long prefix = prefix_function(needle + ' ' + haystack);
+		std::cout << "Алгоритм Кнута-Морриса-Пратта выполнялся ";
+		if (prefix / 1000000000 < 1)
+			std::cout << prefix << " наносекунд\n";
+		else if (prefix / 1000000000 >= 1)
+			std::cout << prefix / 1000000000 << " секунд\n";
 	}
 	else std::cout << "Такого варианта нет";
 }
@@ -121,10 +224,6 @@ void choose_alphabet(std::string str)
 		needle.push_back(haystack[rnd++]);
 	}
 
-	for (char ch : haystack) std::cout << ch;
-	std::cout << "\n";
-	for (char ch : needle) std::cout << ch;
-
 	choose_algorithm(haystack, needle);
 }
 
@@ -158,9 +257,10 @@ int main()
 
 	int choice = 0, choice_alp = 0, n = 0;
 	bool check = true;
-	while (check = true)
+	while (check == true)
 	{
-		std::cout << "Выберите:\n1.Ввести слова вручную\n2.Выбрать буквы алфавита и составить из них слова\n3.Слово вида (B1 B2 … Bs)^n\n4.Выйти\n";
+		std::cout << "Выберите:\n1.Ввести слова вручную\n2.Выбрать буквы алфавита и составить из них слова" << 
+		"\n3.Слово вида (B1 B2 … Bs)^n\n4.Эксперимент 1\n5.Эксперимент 2\n6.Эксперимент 3\n7.Выйти\n";
 		std::cin >> choice;
 		switch (choice)
 		{
@@ -194,15 +294,24 @@ int main()
 			std::cin >> n;
 			needle = mul_num_string(needle, n);
 
-			std::cout << haystack << " " << needle << "\n";
+			//std::cout << haystack << " " << needle << "\n";
 
 			choose_algorithm(haystack, needle);
 			std::cout << "\n";
 			break;
 		case 4:
-			check = false;
+			experiment1();
 			break;
 		case 5:
+			experiment2();
+			break;
+		case 6:
+			experiment3();
+			break;
+		case 7:
+			check = false;
+			break;
+		default:
 			std::cout << "Такого варианта нет\n";
 			break;
 		}
