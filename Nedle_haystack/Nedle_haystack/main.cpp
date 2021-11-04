@@ -1,8 +1,12 @@
+#include <stdlib.h>
 #include <iostream>
+#include <random>
+#include <algorithm> 
 #include <vector>
 #include <windows.h>
 #include <ctime>
 #include <chrono>
+#include <fstream>
 
 //std::vector<int> prefix_function(const std::string s)
 auto prefix_function(const std::string s)
@@ -37,8 +41,8 @@ auto triv_search(std::string haystack, std::string needle)
 {
 	auto t1 = std::chrono::high_resolution_clock::now();
 
-	int n = haystack.length();
-	int m = needle.length();
+	int n = haystack.size();
+	int m = needle.size();
 
 	std::vector<int> ans;
 	int j;
@@ -63,10 +67,11 @@ auto triv_search(std::string haystack, std::string needle)
 		
 		flag = false;
 	}
+	//for (int i : ans) std::cout << i << "\n";
+
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto dt = ((std::chrono::nanoseconds)(t2 - t1)).count();
 	//auto dt = std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count();
-
 
 	//std::cout << "\n" << ans.size() << "\n";
 
@@ -79,6 +84,10 @@ void choose_algorithm(std::string haystack, std::string needle);
 
 void experiment1()
 {
+	std::ofstream fout, fout2;
+	fout.open("exp_1_graphic_triv.txt");
+	fout2.open("exp_1_graphic_prefix.txt");
+
 	std::string haystack;
 	std::string needle;
 
@@ -87,40 +96,71 @@ void experiment1()
 	std::string needle_tmp = needle;
 	std::cout << "Слово, в котором нужно искать, будет равно (ab)^(1000*k). k = 1, … ,1001 с шагом 10\n";
 	haystack = needle;
+
+	std::cout << needle << " " << haystack << " " << needle_tmp << "\n";
 	
 	for (int k(1); k < 1001; k += 10)
 	{
 		for (int i(1); i < k; ++i)
 		{
-			needle += needle_tmp;
+			needle += (needle_tmp);
 		}
 
 		for (int i(1); i < 1000*k; ++i)
 		{
-			haystack += needle_tmp;
+			haystack += (needle_tmp);
 		}
 		
 		//triv_search(haystack, needle);
+		//std::cout << needle_tmp.size() << "\n";
 		auto triv = triv_search(haystack, needle);
 		std::cout << "Наивный алгоритм выполнялся ";
 		if (triv < 1000000000)
-			std::cout << triv << " наносекунд\n";
-		else if (triv > 1000000000)
-			std::cout << triv/ 1000000000 << " секунд\n";
+		{
+			//fout << triv << "n " << k << "\n";
+			std::cout << triv << "\n";
+			std::cout << needle.size() << " " << haystack.size() << " " << k << "\n";
+		}	
+		else if (triv >= 1000000000)
+		{
+			//fout << triv / 1000000000 << " " << k << "\n";
+			std::cout << double(triv / 1000000000) << "\n";
+			std::cout << needle.size() << " " << haystack.size() << " " << k << "\n";
+		}
+
+		auto prefix = prefix_function(haystack + ' ' + needle);
+		std::cout << "Алгоритм Кнута-Морриса-Пратта выполнялся ";
+		if (prefix < 1000000000)
+		{
+			//fout2 << prefix << "n " << k << "\n";
+			std::cout << prefix << "\n";
+			std::cout << needle.size() << " " << haystack.size() << " " << k << "\n";
+		}
+		else if (triv >= 1000000000)
+		{
+			//fout2 << prefix / 1000000000 << " " << k << "\n";
+			std::cout << double(prefix / 1000000000) << "\n";
+			std::cout << needle.size() << " " << haystack.size() << " " << k << "\n";
+		}
+		haystack = needle_tmp;
+		needle = needle_tmp;
 	}
 
-	std::cout << needle.size() << " " << haystack.size() << "\n";
+	fout.close();
+	fout2.close();
 
+	//std::cout << needle.size() << " " << haystack.size() << "\n";
 
-	choose_algorithm(haystack, needle);
-
-
+	//choose_algorithm(haystack, needle);
 }
 
 void experiment2()
 {
 	std::string haystack;
 	std::string needle;
+	std::ofstream fout, fout2;
+	fout.open("exp_2_graphic_triv.txt");
+	fout2.open("exp_2_graphic_prefix.txt");
 
 	char a, b;
 	std::cout << "Введите 1-ую букву алфавита: ";
@@ -128,20 +168,64 @@ void experiment2()
 	std::cout << "Введите 2-ую букву алфавита: ";
 	std::cin >> b;
 
-	for (int m(1); m < 1e+6+1; m+=1e+4)
-	{
-		for (int i(0); i < m; ++i)
-		{
-			needle += a;
-		}
-	}
-
 	for (int m(1); m < 1e+6 + 1; ++m)
 	{
 		if (m % 2)
 			haystack += a;
 		else haystack += b;
 	}
+
+	for (int m(1); m < 1e+6+1; m+=1e+4)
+	{
+		for (int i(0); i < m; ++i)
+		{
+			needle += a;
+		}
+		std::random_device rd;
+		std::mt19937 g(rd());
+		std::shuffle(haystack.begin(), haystack.end(), g);
+
+		std::cout << "Стог сена: ";
+		for (int l = 0; l < 10; ++l) std::cout << haystack[l] << " ";
+		std::cout << "\n";
+
+		auto triv = triv_search(haystack, needle);
+		std::cout << "Наивный алгоритм выполнялся ";
+		if (triv < 1000000000)
+		{
+			fout << triv << "n " << m << "\n";
+			std::cout << triv << "\n";
+			std::cout << needle.size() << " " << haystack.size() << " " << m << "\n";
+		}
+
+		else if (triv >= 1000000000)
+		{
+			fout << triv / 1000000000 << " " << m << "\n";
+			std::cout << double(triv / 1000000000) << "\n";
+			std::cout << needle.size() << " " << haystack.size() << " " << m << "\n";
+		}
+
+		auto prefix = prefix_function(haystack + ' ' + needle);
+		std::cout << "Алгоритм Кнута-Морриса-Пратта выполнялся ";
+		if (prefix < 1000000000)
+		{
+			fout2 << prefix << "n " << m << "\n";
+			std::cout << prefix << "\n";
+			std::cout << needle.size() << " " << haystack.size() << " " << m << "\n";
+		}
+		else if (triv >= 1000000000)
+		{
+			fout2 << prefix / 1000000000 << " " << m << "\n";
+			std::cout << double(prefix / 1000000000) << "\n";
+			std::cout << needle.size() << " " << haystack.size() << " " << m << "\n";
+		}
+
+		needle = "";
+	}
+
+	fout.close();
+	fout2.close();
+
 }
 
 void experiment3()
@@ -150,6 +234,9 @@ void experiment3()
 	std::string needle;
 	int i = 0;
 	std::string word1, word2;
+	std::ofstream fout, fout2;
+	fout.open("exp_3_graphic_triv.txt");
+	fout2.open("exp_3_graphic_prefix.txt");
 
 	char a, b;
 	std::cout << "Введите букву а: ";
@@ -158,19 +245,59 @@ void experiment3()
 	std::cin >> b;
 	while (i < 5)
 	{
-		word1 += a;
+		needle += a;
 		i++;
 	}
 
-	word2 = word1 + b;
 
 	for (int h(1); h < 1e+6 + 1; h += 1e+4)
 	{
-		for (int i(0); i < h; ++i)
+		for (int i(1); i < h+1; ++i)
 		{
-			needle += a;
+			if (i % 6 == 0) haystack += b;
+			else haystack += a;
 		}
+
+		//std::cout << "Стог сена: ";
+		//for (int l = 0; l < 20; ++l) { if (l > haystack.size()) break; std::cout << haystack[l] << " "; }
+		//std::cout << "\n";
+
+		auto triv = triv_search(haystack, needle);
+		std::cout << "Наивный алгоритм выполнялся ";
+		if (triv < 1000000000)
+		{
+			fout << triv << "n " << h << "\n";
+			std::cout << triv << "\n";
+			std::cout << needle.size() << " " << haystack.size() << " " << h << "\n";
+		}
+
+		else if (triv >= 1000000000)
+		{
+			fout << triv / 1000000000 << " " << h << "\n";
+			std::cout << double(triv / 1000000000) << "\n";
+			std::cout << needle.size() << " " << haystack.size() << " " << h << "\n";
+		}
+
+		auto prefix = prefix_function(haystack + ' ' + needle);
+		std::cout << "Алгоритм Кнута-Морриса-Пратта выполнялся ";
+		if (prefix < 1000000000)
+		{
+			fout2 << prefix << "n " << h << "\n";
+			std::cout << prefix << "\n";
+			std::cout << needle.size() << " " << haystack.size() << " " << h << "\n";
+		}
+		else if (triv >= 1000000000)
+		{
+			fout2 << prefix / 1000000000 << " " << h << "\n";
+			std::cout << double(prefix / 1000000000) << "\n";
+			std::cout << needle.size() << " " << haystack.size() << " " << h << "\n";
+		}
+
+		haystack = "";
 	}
+
+	fout.close();
+	fout2.close();
 }
 
 void choose_algorithm(std::string haystack, std::string needle)
@@ -180,13 +307,7 @@ void choose_algorithm(std::string haystack, std::string needle)
 	std::cin >> choice_alp;
 	if (choice_alp == 1)
 	{
-		/*std::vector<int> vec = triv_search(haystack, needle);
-		std::cout << "Ответ: ";
-		for (int i : vec)
-		{
-			std::cout << i << " ";
-		}*/
-		long triv = triv_search(haystack, needle);
+		auto triv = triv_search(haystack, needle);
 		std::cout << "Наивный алгоритм выполнялся ";
 		if (triv / 1000000000 < 1)
 			std::cout << triv << " наносекунд\n";
@@ -195,19 +316,7 @@ void choose_algorithm(std::string haystack, std::string needle)
 	}
 	else if (choice_alp == 2)
 	{
-		/*std::vector<int> vec2 = prefix_function(needle + ' ' + haystack);
-
-		int n = needle.length();
-
-		std::cout << "Ответ: ";
-		for (int i = 0; i < haystack.length(); i++)
-		{
-			if (vec2[n + 1 + i] == n)
-			{
-				std::cout << i - n + 1 << " ";
-			}
-		}*/
-		long prefix = prefix_function(needle + ' ' + haystack);
+		auto prefix = prefix_function(needle + ' ' + haystack);
 		std::cout << "Алгоритм Кнута-Морриса-Пратта выполнялся ";
 		if (prefix / 1000000000 < 1)
 			std::cout << prefix << " наносекунд\n";
@@ -283,6 +392,8 @@ std::string mul_num_string(std::string str, int n)
 
 int main(int argc, char**argv) 
 {
+
+	
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
 	std::string haystack, needle;
@@ -362,3 +473,4 @@ int main(int argc, char**argv)
 
 	return 0;
 }
+
