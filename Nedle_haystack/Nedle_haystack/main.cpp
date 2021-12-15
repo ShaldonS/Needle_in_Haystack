@@ -100,13 +100,14 @@ auto triv_search(const std::string haystack,const  std::string needle)
 	std::vector<int> ans;
 	int j;
 
-	for (int i = 0; i < n; ++i)
+	for (int i = 0; i <= n-m; ++i)
 	{
 		j = 0;
-		while ((haystack[i + j] == needle[j]) && (j < n - i))
-		{
+		while ((haystack[i + j] == needle[j]) && (j < m))
+		{	
+			//std::cout << j << "\n";
+			if (j == m-1 ) ans.push_back(i + j - 1);
 			j++;
-			if( j == m && haystack[i] == needle[0]) ans.push_back(i);
 		}
 	}
 	auto t2 = std::chrono::high_resolution_clock::now();
